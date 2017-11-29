@@ -1,0 +1,76 @@
+<%@ page language="java" pageEncoding="UTF-8" contentType="text/html; charset=UTF-8" %>
+<!DOCTYPE html>
+<html>
+<head>
+<%@ include file="../../common/header.jsp"%>
+<script type="text/javascript">
+$(function() {
+	//绑定提交按钮click事件
+	$("#submit").click(function() {
+	$("#submit").prop('disabled', true).css({'cursor':'not-allowed','backgroundColor':'#ccc'});
+		if(!biz.validate("valid",$('#$!{bean.lowerName}FormEdit')[0])){
+			showWarn("<m:message code='validation.object'/>",3000);
+			$("#submit").prop('disabled', false).css({'cursor':'pointer'});
+			return;
+		}
+		var options = {
+			url : "<m:url value='/$!{bean.lowerName}/add$!{bean.uperName}.do'/>",
+			type : "post",
+			success : function(data) {
+				var d = $ .parseJSON(data);
+				showMessage(d.rs,"","",function(){
+					window.parent.closeAdd();
+		     		List.doSearch(window.parent.gridObj);
+				});
+			}
+		};
+		// 将options传给ajaxForm
+		$('#$!{bean.lowerName}FormEdit').ajaxSubmit(options);
+	});
+
+	/*编辑表单数据验证*/
+	new biz.validate({
+		id:"#$!{bean.lowerName}FormEdit",
+		rules:{
+		}
+	}); 
+});
+</script>
+</head>
+  
+<body>
+	<form id="$!{bean.lowerName}FormEdit" >
+    <div class="ui-table ui-widget ui-corner-all ui-border" >
+		<input type="hidden" id="edit_$bean.lcolumnList.get("id")" name="$bean.lcolumnList.get("id")" type="text" value="${$!{bean.lowerName}.$bean.lcolumnList.get("id")}"/>
+		<table class="table">
+#set($dot="$")
+#set($cols = 2)
+#set($index=1)
+#set($size = $bean.lcolumnList.size()) 	
+#set($colspan = $cols*2 - ($size*2 % ($cols*2)) + 1)
+#if(($size*2 % ($cols*2)) == 0)#set($colspan = 0)#end
+#foreach( $key in $bean.lcolumnList.keySet())
+#if($bean.lcolumnList.get("id") != $bean.lcolumnList.get($key))
+#if( $index % $cols == 1)
+			<tr>
+#end
+				<td class="inputLabelTd"><m:message code="$bean.lowerName.$bean.lcolumnList.get($key)"/>：</td>
+				<td class="inputTd"#if($index == $size) colspan="${colspan}"#end>
+					<input id="edit_$bean.lcolumnList.get($key)" name="$bean.lcolumnList.get($key)" type="text" class="text" value="${$!{bean.lowerName}.$!{bean.lcolumnList.get($key)}}"/>
+				</td>
+#if( $index % $cols == 0 || $index == $size)
+			</tr>
+#end
+#set( $index=$index+1)
+#end
+#end
+			<tr>
+				<td class="inputTd" colspan="4" style="text-align:center;">
+					<input id="submit" type="button" class="ti_bottom" value="<m:message code='button.save' />"/>
+				</td>
+			</tr>
+		</table>
+    </div>
+	</form>
+</body>
+</html>
